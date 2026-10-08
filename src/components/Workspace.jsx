@@ -59,10 +59,10 @@ export function Workspace() {
         <section className={`${pane === "quotes" ? "flex" : "hidden"} min-h-0 w-full flex-col lg:flex lg:w-[340px] lg:shrink-0`}>
           <QuoteRail quotes={quotes} activeId={quote.id} />
         </section>
-        <section className={`${pane === "drivers" ? "flex" : "hidden"} min-h-0 min-w-0 flex-1 flex-col lg:flex`}>
+        <section className={`${pane === "drivers" ? "flex" : "hidden"} min-h-0 w-full flex-col lg:flex lg:w-[390px] lg:shrink-0`}>
           <DriverBoard quote={quote} onOpenChat={() => setPane("chat")} />
         </section>
-        <section className={`${pane === "chat" ? "flex" : "hidden"} min-h-0 w-full flex-col lg:flex lg:w-[390px] lg:shrink-0`}>
+        <section className={`${pane === "chat" ? "flex" : "hidden"} min-h-0 min-w-0 flex-1 flex-col lg:flex`}>
           <DriverChat quote={quote} />
         </section>
       </div>
