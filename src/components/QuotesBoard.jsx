@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Archive, Calendar, ChevronDown, ExternalLink, Search, Tag, X } from "lucide-react";
 import { useStore } from "../store";
-import { EmailLines, StatusMarks, btnGhost, btnPrimary, btnSoft, quoteOpensDirectly } from "./ui";
+import { EmailLines, StatusMarks, btnGhost, btnPrimary, btnSoft } from "./ui";
 
 const STATUS_OPTIONS = [
   { id: "new-active", label: "New/active" },
@@ -99,7 +99,7 @@ export function QuotesBoard() {
           <input
             value={store.query}
             onChange={(event) => store.setQuery(event.target.value)}
-            placeholder="broker email"
+            placeholder="Search by keyword"
             className="h-full w-full bg-transparent text-[13px] outline-none placeholder:text-slate-400"
           />
           {store.query && (
@@ -169,7 +169,7 @@ export function QuotesBoard() {
 
 function QuoteCard({ quote, archivedView }) {
   const store = useStore();
-  const openDirect = quoteOpensDirectly(quote);
+  const bidAndOfferReady = quote.bidCreated && quote.offerCreated;
 
   return (
     <article className="flex min-h-[280px] flex-col rounded-2xl border border-[#e6ebf2] bg-white p-4 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
@@ -190,7 +190,7 @@ function QuoteCard({ quote, archivedView }) {
           <button type="button" className={btnSoft} onClick={() => store.restoreQuote(quote.id)}>
             Restore
           </button>
-        ) : openDirect ? (
+        ) : bidAndOfferReady ? (
           <button type="button" className={btnSoft} onClick={() => store.openWorkspace(quote.id)}>
             Open <ExternalLink className="h-3.5 w-3.5" />
           </button>

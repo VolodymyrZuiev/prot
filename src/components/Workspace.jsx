@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { QUICK_REPLIES, formatMoney, lastPreview } from "../data";
 import { useStore } from "../store";
-import { EmailLines, GmailMark, btnGhost, btnPrimary } from "./ui";
+import { BrokerComposer, BrokerThread, GmailMark, btnGhost, btnPrimary } from "./ui";
 
 export function Workspace() {
   const store = useStore();
@@ -91,11 +91,12 @@ function QuoteRail({ quotes, activeId }) {
             <button type="button" onClick={() => store.openWorkspace(quote.id)} className="w-full text-left">
               <div className="flex items-start justify-between gap-2">
                 <div className="text-[14px] font-semibold">{quote.company}</div>
-                <span className="flex shrink-0 items-center gap-1">
+                <span className="flex shrink-0 flex-wrap items-center justify-end gap-1">
+                  {quote.isNew && <span className="rounded-[4px] bg-[#ff3b30] px-1.5 py-px text-[10px] font-bold text-white">NEW</span>}
+                  {quote.bidCreated && <span className="rounded-full bg-[#3dce5a] px-1.5 py-px text-[10px] font-semibold text-white">BID created</span>}
                   {quote.offerCreated && (
                     <span className="rounded-full border border-[#3dce5a] px-1.5 py-px text-[10px] font-semibold text-[#1f9d45]">Offer created</span>
                   )}
-                  {quote.bidCreated && <span className="rounded-full bg-[#3dce5a] px-1.5 py-px text-[10px] font-semibold text-white">BID created</span>}
                   <GmailMark className="h-3.5 w-3.5" />
                 </span>
               </div>
@@ -106,20 +107,10 @@ function QuoteRail({ quotes, activeId }) {
             </button>
             {active && (
               <div className="mt-3">
-                <div className="scroll-thin max-h-[320px] space-y-3 overflow-auto pr-1">
-                  {quote.thread.map((message) => (
-                    <div key={message.id} className={message.from === "me" ? "rounded-xl bg-[#eef4ff] p-2.5" : ""}>
-                      <div className="mb-1 text-[11px] text-slate-400">
-                        {message.from === "me" ? "You" : message.name} · {message.time}
-                      </div>
-                      <EmailLines lines={message.body} />
-                    </div>
-                  ))}
+                <div className="scroll-thin max-h-[360px] overflow-auto pr-1">
+                  <BrokerThread thread={quote.thread} />
                 </div>
-                <MessageBox
-                  placeholder="Write a message"
-                  onSend={(text) => store.sendCustomerMessage(quote.id, text)}
-                />
+                <BrokerComposer onSend={(text) => store.sendCustomerMessage(quote.id, text)} />
               </div>
             )}
           </article>

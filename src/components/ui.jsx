@@ -1,3 +1,6 @@
+import { useEffect, useRef, useState } from "react";
+import { Send } from "lucide-react";
+
 export function Logo({ className = "h-8 w-8" }) {
   return (
     <svg viewBox="0 0 32 32" className={className} aria-hidden="true">
@@ -18,24 +21,51 @@ export function GmailMark({ className = "h-4 w-4" }) {
   );
 }
 
-export function EmailLines({ lines, compact = false }) {
+export function EmailLines({ lines, tone = "default" }) {
+  const mine = tone === "mine";
   return (
-    <div className={compact ? "space-y-0.5" : "space-y-0.5"}>
+    <div className="space-y-0.5">
       {lines.map((line, index) => {
         if (line.type === "subject") {
           return (
-            <p key={index} className="text-[12.5px] leading-5 text-slate-500">
-              Email subject: <span className="text-slate-800">{line.value}</span>
+            <p key={index} className={`text-[12.5px] leading-5 ${mine ? "text-blue-100" : "text-slate-500"}`}>
+              Email subject: <span className={mine ? "text-white" : "text-slate-800"}>{line.value}</span>
             </p>
           );
         }
         return (
           <p
             key={index}
-            className={`text-[12.5px] leading-5 ${line.strong ? "font-semibold text-slate-800" : "text-slate-600"}`}
+            className={`text-[12.5px] leading-5 ${
+              mine ? "text-white" : line.strong ? "font-semibold text-slate-800" : "text-slate-600"
+            }`}
           >
             {line.value}
           </p>
+        );
+      })}
+    </div>
+  );
+}
+
+export function BrokerThread({ thread }) {
+  return (
+    <div className="flex flex-col gap-3">
+      {thread.map((message) => {
+        const mine = message.from === "me";
+        return (
+          <div key={message.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
+            <div
+              className={`max-w-[88%] rounded-2xl px-3 py-2 ${
+                mine ? "rounded-br-md bg-[#2f6cf6] text-white" : "rounded-bl-md bg-slate-100 text-slate-700"
+              }`}
+            >
+              <div className={`mb-1 text-[11px] ${mine ? "text-blue-100" : "text-slate-400"}`}>
+                {mine ? "Dispatcher" : message.name || "Broker"} · {message.time}
+              </div>
+              <EmailLines lines={message.body} tone={mine ? "mine" : "default"} />
+            </div>
+          </div>
         );
       })}
     </div>
@@ -50,14 +80,14 @@ export function StatusMarks({ quote }) {
           NEW
         </span>
       )}
-      {quote.offerCreated && (
-        <span className="rounded-full border border-[#3dce5a] px-2 py-[2px] text-[10.5px] font-semibold text-[#1f9d45]">
-          Offer created
-        </span>
-      )}
       {quote.bidCreated && (
         <span className="rounded-full bg-[#3dce5a] px-2 py-[2px] text-[10.5px] font-semibold text-white">
           BID created
+        </span>
+      )}
+      {quote.offerCreated && (
+        <span className="rounded-full border border-[#3dce5a] px-2 py-[2px] text-[10.5px] font-semibold text-[#1f9d45]">
+          Offer created
         </span>
       )}
       <GmailMark />
@@ -78,6 +108,54 @@ export function FieldLabel({ children }) {
   return <div className="mb-1 text-[12px] font-medium text-slate-500">{children}</div>;
 }
 
-export function quoteOpensDirectly(quote) {
-  return quote.bidCreated || quote.offerCreated || quote.id === "q-ge" || quote.id === "q-lv";
+export function BrokerComposer({ onSend, placeholder = "Write a message" }) {
+  const [text, setText] = useState("");
+  const fieldRef = useRef(null);
+
+  useEffect(() => {
+    const field = fieldRef.current;
+    if (!field) return;
+    field.style.height = "0px";
+    field.style.height = `${Math.min(field.scrollHeight, 140)}px`;
+  }, [text]);
+
+  const submit = () => {
+    const value = text.trim();
+    if (!value) return;
+    onSend(value);
+    setText("");
+  };
+
+  return (
+    <form
+      className="mt-3 flex items-end gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-1"
+      onSubmit={(event) => {
+        event.preventDefault();
+        submit();
+      }}
+    >
+      <textarea
+        ref={fieldRef}
+        rows={1}
+        value={text}
+        onChange={(event) => setText(event.target.value)}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            submit();
+          }
+        }}
+        placeholder={placeholder}
+        className="max-h-[140px] min-h-9 flex-1 resize-none bg-transparent py-2 text-[13px] leading-5 outline-none"
+      />
+      <button
+        type="submit"
+        aria-label="Send"
+        disabled={!text.trim()}
+        className="mb-1.5 grid h-8 w-8 shrink-0 place-items-center rounded-full text-slate-400 hover:text-[#2f6cf6] disabled:opacity-40"
+      >
+        <Send className="h-4 w-4" />
+      </button>
+    </form>
+  );
 }

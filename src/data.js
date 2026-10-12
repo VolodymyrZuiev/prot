@@ -499,6 +499,13 @@ export const INITIAL_QUOTES = [
           { type: "text", value: "1 PALLET 31X47X23= 443 LBS" },
         ],
       },
+      {
+        id: "jj-t4",
+        from: "me",
+        name: "Andrew Jameson",
+        time: "2020-05-05 12:40:18",
+        body: [{ type: "text", value: "Checking coverage now. I'll send the bid shortly." }],
+      },
     ],
   }),
   quote({
@@ -700,7 +707,8 @@ export const INITIAL_QUOTES = [
     contact: "Cameron Walsh",
     email: "cameron.walsh@example.com",
     timestamp: "2025-04-28 16:42:09",
-    isNew: true,
+    isNew: false,
+    bidCreated: true,
     equipment: "OTR",
     lane: "Atlanta, GA → Memphis, TN",
     body: [
@@ -794,7 +802,7 @@ export const INITIAL_QUOTES = [
     contact: "Jerome Fox",
     email: "jerome.fox@example.com",
     timestamp: "2025-06-11 13:05:44",
-    isNew: true,
+    isNew: false,
     equipment: "Sprinter",
     lane: "Seattle, WA → Denver, CO",
     body: [

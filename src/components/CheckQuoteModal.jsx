@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { MapPin, Plus, Send, X } from "lucide-react";
-import { CITIES, DEPARTMENTS, QUICK_REPLIES, estimateMiles, recommendRate } from "../data";
+import { MapPin, Plus, X } from "lucide-react";
+import { CITIES, DEPARTMENTS, estimateMiles, recommendRate } from "../data";
 import { useStore } from "../store";
-import { EmailLines, btnPrimary, btnQuiet } from "./ui";
+import { BrokerComposer, BrokerThread, btnPrimary, btnQuiet } from "./ui";
 
 const EMPTY_FORM = {
   pu: "",
@@ -22,7 +22,6 @@ export function CheckQuoteModal() {
   const store = useStore();
   const quote = store.modalQuote;
   const [form, setForm] = useState(EMPTY_FORM);
-  const [draft, setDraft] = useState("");
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
@@ -40,7 +39,6 @@ export function CheckQuoteModal() {
       note: quote.form.note || "",
       stops: quote.form.stops || [],
     });
-    setDraft("");
     setErrors({});
   }, [quote?.id]);
 
@@ -93,10 +91,9 @@ export function CheckQuoteModal() {
   };
 
   const send = (text) => {
-    const value = (text ?? draft).trim();
+    const value = text.trim();
     if (!value) return;
     store.sendCustomerMessage(quote.id, value);
-    setDraft("");
   };
 
   return (
@@ -124,48 +121,10 @@ export function CheckQuoteModal() {
               {quote.email}
             </a>
             <div className="text-[12px] text-slate-400">{quote.timestamp}</div>
-            <div className="scroll-thin mt-3 flex-1 space-y-4 overflow-auto pr-1">
-              {quote.thread.map((message, index) => (
-                <div key={message.id} className={message.from === "me" ? "rounded-xl bg-[#eef4ff] p-3" : index > 0 ? "border-t border-slate-100 pt-3" : ""}>
-                  {(index > 0 || message.from === "me") && (
-                    <div className="mb-1 flex items-center justify-between text-[11px] text-slate-400">
-                      <span>{message.from === "me" ? "You" : message.name}</span>
-                      <span>{message.time}</span>
-                    </div>
-                  )}
-                  <EmailLines lines={message.body} />
-                </div>
-              ))}
+            <div className="scroll-thin mt-3 flex-1 overflow-auto pr-1">
+              <BrokerThread thread={quote.thread} />
             </div>
-            <div className="mt-3 flex flex-wrap gap-1.5">
-              {QUICK_REPLIES.map((reply) => (
-                <button
-                  key={reply}
-                  type="button"
-                  onClick={() => send(reply)}
-                  className="rounded-full border border-slate-200 px-2.5 py-1 text-[12px] text-slate-600 hover:bg-slate-50"
-                >
-                  {reply}
-                </button>
-              ))}
-            </div>
-            <form
-              className="mt-2 flex items-center gap-2 rounded-full border border-slate-200 px-3"
-              onSubmit={(event) => {
-                event.preventDefault();
-                send();
-              }}
-            >
-              <input
-                value={draft}
-                onChange={(event) => setDraft(event.target.value)}
-                placeholder="Write a message"
-                className="h-10 flex-1 bg-transparent text-[13px] outline-none"
-              />
-              <button type="submit" aria-label="Send reply" className="text-slate-400 hover:text-[#2f6cf6]">
-                <Send className="h-4 w-4" />
-              </button>
-            </form>
+            <BrokerComposer onSend={send} />
           </section>
 
           <section className="min-w-0">
