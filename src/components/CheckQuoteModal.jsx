@@ -117,6 +117,7 @@ export function CheckQuoteModal() {
 
         <div className="grid min-h-0 flex-1 gap-4 overflow-auto px-5 pb-2 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
           <section className="flex min-h-[420px] flex-col rounded-2xl border border-slate-200 p-4">
+            <SectionLabel>Gmail</SectionLabel>
             <div className="text-[15px] font-semibold">{quote.company}</div>
             <div className="text-[13px] text-slate-600">{quote.contact}</div>
             <a className="text-[12.5px] text-[#2f6cf6]" href={`mailto:${quote.email}`}>
@@ -126,26 +127,11 @@ export function CheckQuoteModal() {
             <div className="scroll-thin mt-3 flex-1 overflow-auto pr-1">
               <BrokerThread thread={quote.thread} />
             </div>
-            <div className="mt-3 flex items-center gap-3 rounded-xl bg-[#f4f7fb] px-3 py-2">
-              <div className="min-w-0">
-                <div className="text-[12px] font-semibold text-slate-700">Brokers rate</div>
-                <div className="text-[11px] text-slate-400">Rate quoted in this broker email</div>
-              </div>
-              <label className="ml-auto flex h-9 w-[132px] shrink-0 items-center rounded-full border border-slate-200 bg-white px-3">
-                <span className="text-[13px] text-slate-400">$</span>
-                <input
-                  value={form.brokerRate}
-                  onChange={(event) => set("brokerRate", event.target.value.replace(/[^\d.]/g, ""))}
-                  placeholder="0"
-                  aria-label="Brokers rate"
-                  className="w-full bg-transparent text-[13px] outline-none"
-                />
-              </label>
-            </div>
             <BrokerComposer onSend={send} />
           </section>
 
           <section className="min-w-0">
+            <SectionLabel>Offer</SectionLabel>
             <div className="grid gap-4 sm:grid-cols-2">
               <LaneFields
                 title="PU"
@@ -256,6 +242,26 @@ export function CheckQuoteModal() {
                 className="h-24 w-full resize-none rounded-xl border border-slate-200 px-3 py-2 text-[13px] outline-none"
               />
             </div>
+
+            <div className="mt-5 border-t border-slate-200 pt-4">
+              <SectionLabel>BID</SectionLabel>
+              <div className="flex items-center gap-3 rounded-xl bg-[#f4f7fb] px-3 py-2">
+                <div className="min-w-0">
+                  <div className="text-[12px] font-semibold text-slate-700">Brokers rate</div>
+                  <div className="text-[11px] text-slate-400">Rate quoted in this broker email</div>
+                </div>
+                <label className="ml-auto flex h-9 w-[132px] shrink-0 items-center rounded-full border border-slate-200 bg-white px-3">
+                  <span className="text-[13px] text-slate-400">$</span>
+                  <input
+                    value={form.brokerRate}
+                    onChange={(event) => set("brokerRate", event.target.value.replace(/[^\d.]/g, ""))}
+                    placeholder="0"
+                    aria-label="Brokers rate"
+                    className="w-full bg-transparent text-[13px] outline-none"
+                  />
+                </label>
+              </div>
+            </div>
           </section>
         </div>
 
@@ -278,6 +284,10 @@ export function CheckQuoteModal() {
 }
 
 const inputClass = "h-9 w-full rounded-full border border-slate-200 px-3 text-[13px] outline-none";
+
+function SectionLabel({ children }) {
+  return <div className="mb-3 border-b border-slate-200 pb-1.5 text-[12px] font-semibold uppercase tracking-[0.14em] text-slate-500">{children}</div>;
+}
 
 function Labeled({ label, children }) {
   return (
