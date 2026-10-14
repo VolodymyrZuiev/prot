@@ -123,9 +123,9 @@ export function StoreProvider({ children }) {
       return {
         ...quote,
         form: { ...quote.form, ...form },
-        bidCreated: true,
+        bidCreated: !form.skipBid,
         offerCreated: true,
-        irrelevantReason: quote.irrelevantReason || irrelevantReasonFor(quote, form),
+        irrelevantReason: form.skipBid ? quote.irrelevantReason : quote.irrelevantReason || irrelevantReasonFor(quote, form),
         isNew: false,
         offerTimer: 5 * 60,
         driversAvailable: true,
@@ -143,8 +143,9 @@ export function StoreProvider({ children }) {
       };
     });
     const target = quotes.find((quote) => quote.id === id);
-    log(`BID & Offer created for ${target?.company || "quote"}`, id);
-    pushToast("BID & Offer created");
+    const skippedBid = Boolean(form.skipBid);
+    log(`${skippedBid ? "Offer" : "BID & Offer"} created for ${target?.company || "quote"}`, id);
+    pushToast(skippedBid ? "Offer created" : "BID & Offer created");
     setModalQuoteId(null);
     setWorkspaceId(id);
     setView("workspace");

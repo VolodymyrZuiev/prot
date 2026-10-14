@@ -15,6 +15,7 @@ const EMPTY_FORM = {
   dims: "",
   rate: "",
   brokerRate: "",
+  skipBid: false,
   note: "",
   stops: [],
 };
@@ -38,6 +39,7 @@ export function CheckQuoteModal() {
       dims: quote.form.dims || "",
       rate: quote.form.rate || "",
       brokerRate: quote.form.brokerRate || "",
+      skipBid: Boolean(quote.form.skipBid),
       note: quote.form.note || "",
       stops: quote.form.stops || [],
     });
@@ -243,20 +245,28 @@ export function CheckQuoteModal() {
               />
             </div>
 
-            <div className="mt-5 border-t border-slate-200 pt-4">
-              <SectionLabel>BID</SectionLabel>
-              <div className="flex items-center gap-3 rounded-xl bg-[#f4f7fb] px-3 py-2">
-                <div className="min-w-0">
-                  <div className="text-[12px] font-semibold text-slate-700">Brokers rate</div>
-                  <div className="text-[11px] text-slate-400">Rate quoted in this broker email</div>
+            <div className="mt-4">
+              <div className="mb-2 text-[12px] font-semibold uppercase tracking-[0.14em] text-slate-500">BID</div>
+              <div className="flex items-center gap-3 rounded-xl bg-[#f4f7fb] px-3 py-2.5">
+                <div className="min-w-0 flex-1">
+                  <div className="text-[12px] font-semibold text-slate-700">Rate for Broker</div>
+                  <label className="mt-1.5 flex items-center gap-2 text-[12.5px] text-slate-600">
+                    <input
+                      type="checkbox"
+                      checked={form.skipBid}
+                      onChange={(event) => set("skipBid", event.target.checked)}
+                      className="h-3.5 w-3.5 accent-[#2f6cf6]"
+                    />
+                    do not create a BID
+                  </label>
                 </div>
-                <label className="ml-auto flex h-9 w-[132px] shrink-0 items-center rounded-full border border-slate-200 bg-white px-3">
+                <label className="flex h-9 w-[132px] shrink-0 items-center rounded-full border border-slate-200 bg-white px-3">
                   <span className="text-[13px] text-slate-400">$</span>
                   <input
                     value={form.brokerRate}
                     onChange={(event) => set("brokerRate", event.target.value.replace(/[^\d.]/g, ""))}
                     placeholder="0"
-                    aria-label="Brokers rate"
+                    aria-label="Rate for Broker"
                     className="w-full bg-transparent text-[13px] outline-none"
                   />
                 </label>
