@@ -7,6 +7,25 @@ export function uid(prefix = "id") {
 export const COMPANIES = ["Empire National", "Atlas Freight", "Pacific Haul"];
 export const DEPARTMENTS = ["Expedite Department", "OTR Department", "Intermodal"];
 
+export const INITIAL_QUOTE_RULES = {
+  include: [
+    { id: "rule-mi", company: "Mitsubishi", email: "georgia.young@example.com" },
+    { id: "rule-ap", company: "Apple", email: "willie.jennings@example.com" },
+    { id: "rule-lv", company: "Louis Vuitton", email: "curtis.weaver@example.com" },
+    { id: "rule-mc", company: "MasterCard", email: "deanna.curtis@example.com" },
+    { id: "rule-eb", company: "eBay", email: "tim.jennings@example.com" },
+    { id: "rule-ge", company: "General Electric", email: "michelle.rivera@example.com" },
+  ],
+  exclude: [
+    { id: "ex-mi", company: "Mitsubishi", email: "georgia.young@example.com" },
+    { id: "ex-ap", company: "Apple", email: "willie.jennings@example.com" },
+    { id: "ex-lv", company: "Louis Vuitton", email: "curtis.weaver@example.com" },
+    { id: "ex-mc", company: "MasterCard", email: "deanna.curtis@example.com" },
+    { id: "ex-eb", company: "eBay", email: "tim.jennings@example.com" },
+    { id: "ex-ge", company: "General Electric", email: "michelle.rivera@example.com" },
+  ],
+};
+
 export const CITIES = [
   "Minneapolis, MN",
   "Cincinnati, OH",
@@ -100,6 +119,17 @@ export function recommendRate(miles, weight, equipment = "Van") {
   const milesN = numFrom(miles) || 500;
   const weightN = numFrom(weight) || 400;
   return Math.round((milesN * perMile + weightN * 0.12) / 5) * 5;
+}
+
+export function irrelevantReasonFor(quote, form = quote.form || {}) {
+  if (quote.irrelevantReason) return quote.irrelevantReason;
+  const pieces = String(form.pallets || "").trim();
+  const weight = String(form.weight || "").trim();
+  const truck = String(quote.equipment || "sprinter").toLowerCase();
+  if (pieces && weight) return `${pieces} at ${weight} is too large for a ${truck}.`;
+  if (weight) return `${weight} is too heavy for a ${truck}.`;
+  if (pieces) return `${pieces} is too large for a ${truck}.`;
+  return "This freight is too large for a sprinter.";
 }
 
 export function formatMoney(value) {
@@ -448,6 +478,7 @@ export const INITIAL_QUOTES = [
     isNew: false,
     bidCreated: true,
     offerCreated: true,
+    irrelevantReason: "10 ft of freight is too large for a sprinter.",
     lane: "Dallas, TX → Atlanta, GA",
     body: jjLaneBody,
     selectedDriverId: "jj-d0",
@@ -517,6 +548,7 @@ export const INITIAL_QUOTES = [
     timestamp: "2020-05-05 14:02:11",
     bidCreated: true,
     offerCreated: true,
+    irrelevantReason: "Two full pallets are too large for a sprinter.",
     lane: "Nashville, TN → Newark, NJ",
     body: [
       { type: "subject", value: "quote" },
@@ -754,6 +786,7 @@ export const INITIAL_QUOTES = [
     timestamp: "2020-05-06 09:12:33",
     bidCreated: true,
     offerCreated: true,
+    irrelevantReason: "Exclusive-use van was requested, but this load was posted to sprinters.",
     lane: "Detroit, MI → Charlotte, NC",
     body: [
       { type: "subject", value: "quote" },
@@ -849,6 +882,7 @@ export const INITIAL_QUOTES = [
     archived: true,
     bidCreated: true,
     offerCreated: true,
+    irrelevantReason: "Twelve cartons are too bulky for a sprinter.",
     lane: "Memphis, TN → Miami, FL",
     body: [
       { type: "subject", value: "quote" },

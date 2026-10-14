@@ -14,6 +14,7 @@ const EMPTY_FORM = {
   pallets: "",
   dims: "",
   rate: "",
+  brokerRate: "",
   note: "",
   stops: [],
 };
@@ -36,6 +37,7 @@ export function CheckQuoteModal() {
       pallets: quote.form.pallets || "",
       dims: quote.form.dims || "",
       rate: quote.form.rate || "",
+      brokerRate: quote.form.brokerRate || "",
       note: quote.form.note || "",
       stops: quote.form.stops || [],
     });
@@ -77,7 +79,7 @@ export function CheckQuoteModal() {
     const miles = form.miles || estimateMiles([form.pu, ...form.stops.map((stop) => stop.location), form.del]);
     const rate = recommendRate(miles, form.weight, quote.equipment);
     setForm((current) => ({ ...current, miles: current.miles || String(miles), rate: String(rate) }));
-    store.pushToast("Recommended rate applied");
+    store.pushToast("Drivers rate applied");
   };
 
   const submit = () => {
@@ -123,6 +125,22 @@ export function CheckQuoteModal() {
             <div className="text-[12px] text-slate-400">{quote.timestamp}</div>
             <div className="scroll-thin mt-3 flex-1 overflow-auto pr-1">
               <BrokerThread thread={quote.thread} />
+            </div>
+            <div className="mt-3 flex items-center gap-3 rounded-xl bg-[#f4f7fb] px-3 py-2">
+              <div className="min-w-0">
+                <div className="text-[12px] font-semibold text-slate-700">Brokers rate</div>
+                <div className="text-[11px] text-slate-400">Rate quoted in this broker email</div>
+              </div>
+              <label className="ml-auto flex h-9 w-[132px] shrink-0 items-center rounded-full border border-slate-200 bg-white px-3">
+                <span className="text-[13px] text-slate-400">$</span>
+                <input
+                  value={form.brokerRate}
+                  onChange={(event) => set("brokerRate", event.target.value.replace(/[^\d.]/g, ""))}
+                  placeholder="0"
+                  aria-label="Brokers rate"
+                  className="w-full bg-transparent text-[13px] outline-none"
+                />
+              </label>
             </div>
             <BrokerComposer onSend={send} />
           </section>
@@ -212,7 +230,7 @@ export function CheckQuoteModal() {
             </div>
 
             <div className="mt-4">
-              <div className="mb-1 text-[12px] font-medium text-slate-500">Recommended rate</div>
+              <div className="mb-1 text-[12px] font-medium text-slate-500">Drivers Rate</div>
               <div className="flex gap-2">
                 <div className={`flex h-9 items-center rounded-full border px-3 ${errors.rate ? "border-red-400" : "border-[#2f6cf6]"}`}>
                   <span className="text-[13px] text-slate-400">$</span>

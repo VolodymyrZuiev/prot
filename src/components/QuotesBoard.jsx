@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Archive, Calendar, ChevronDown, ExternalLink, Search, Tag, X } from "lucide-react";
+import { Archive, Calendar, ChevronDown, ExternalLink, Search, Settings, Tag, X } from "lucide-react";
 import { useStore } from "../store";
 import { EmailLines, StatusMarks, btnGhost, btnPrimary, btnSoft } from "./ui";
 
@@ -45,7 +45,13 @@ export function QuotesBoard() {
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <h1 className="text-[28px] font-semibold tracking-tight text-[#1c2434]">Quotes</h1>
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="text-[28px] font-semibold tracking-tight text-[#1c2434]">Quotes</h1>
+        <button type="button" onClick={() => store.setQuoteRulesOpen(true)} className={btnPrimary}>
+          Quote Rules
+          <Settings className="h-4 w-4" />
+        </button>
+      </div>
       <div className="mt-2 flex items-end gap-2">
         <button
           type="button"

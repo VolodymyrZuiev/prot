@@ -23,6 +23,7 @@ import { Logo } from "./ui";
 import { QuotesBoard } from "./QuotesBoard";
 import { Workspace } from "./Workspace";
 import { CheckQuoteModal, NewBidModal } from "./CheckQuoteModal";
+import { QuoteRulesModal } from "./QuoteRulesModal";
 import { Modules } from "./Modules";
 import { PricingPopover } from "./PricingPopover";
 
@@ -60,6 +61,7 @@ export function Shell() {
       </div>
       {store.modalQuote && <CheckQuoteModal />}
       {store.newBidOpen && <NewBidModal />}
+      {store.quoteRulesOpen && <QuoteRulesModal />}
       <ToastStack />
     </div>
   );

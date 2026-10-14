@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { QUICK_REPLIES, formatMoney, lastPreview } from "../data";
 import { useStore } from "../store";
-import { BrokerComposer, BrokerThread, GmailMark, btnGhost, btnPrimary } from "./ui";
+import { BrokerComposer, BrokerThread, GmailMark, IrrelevantTag, btnGhost, btnPrimary } from "./ui";
 
 export function Workspace() {
   const store = useStore();
@@ -97,6 +97,7 @@ function QuoteRail({ quotes, activeId }) {
                   {quote.offerCreated && (
                     <span className="rounded-full border border-[#3dce5a] px-1.5 py-px text-[10px] font-semibold text-[#1f9d45]">Offer created</span>
                   )}
+                  {quote.bidCreated && quote.offerCreated && <IrrelevantTag reason={quote.irrelevantReason} />}
                   <GmailMark className="h-3.5 w-3.5" />
                 </span>
               </div>

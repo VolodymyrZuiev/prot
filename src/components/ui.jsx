@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Send } from "lucide-react";
+import { AlertTriangle, Send } from "lucide-react";
 
 export function Logo({ className = "h-8 w-8" }) {
   return (
@@ -72,9 +72,27 @@ export function BrokerThread({ thread }) {
   );
 }
 
-export function StatusMarks({ quote }) {
+export function IrrelevantTag({ reason }) {
+  const text = reason || "This freight is too large for a sprinter.";
   return (
-    <span className="flex max-w-[58%] shrink-0 flex-wrap items-center justify-end gap-1">
+    <span className="group/irrelevant relative inline-flex">
+      <span className="rounded-full bg-[#fff1e6] px-2 py-[2px] text-[10.5px] font-semibold text-[#c2410c] ring-1 ring-[#fdba74]">
+        Irrelevant
+      </span>
+      <span className="absolute right-0 top-full z-30 hidden pt-1.5 group-hover/irrelevant:block">
+        <span role="tooltip" className="flex w-60 items-start gap-2 rounded-xl border border-[#fecaca] bg-white p-2.5 text-left shadow-lg">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[#ef4444]" />
+          <span className="text-[12px] font-medium leading-4 text-slate-700">{text}</span>
+        </span>
+      </span>
+    </span>
+  );
+}
+
+export function StatusMarks({ quote }) {
+  const bothReady = quote.bidCreated && quote.offerCreated;
+  return (
+    <span className="flex max-w-[68%] shrink-0 flex-wrap items-center justify-end gap-1">
       {quote.isNew && (
         <span className="rounded-[4px] bg-[#ff3b30] px-1.5 py-[1px] text-[10px] font-bold tracking-wide text-white">
           NEW
@@ -90,6 +108,7 @@ export function StatusMarks({ quote }) {
           Offer created
         </span>
       )}
+      {bothReady && <IrrelevantTag reason={quote.irrelevantReason} />}
       <GmailMark />
     </span>
   );

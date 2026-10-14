@@ -1,7 +1,9 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import {
   INITIAL_NOTIFICATIONS,
+  INITIAL_QUOTE_RULES,
   INITIAL_QUOTES,
+  irrelevantReasonFor,
   driverReplyFor,
   formatNow,
   seedDrivers,
@@ -31,6 +33,8 @@ export function StoreProvider({ children }) {
   const [modalQuoteId, setModalQuoteId] = useState(null);
   const [newBidOpen, setNewBidOpen] = useState(false);
   const [pricingOpen, setPricingOpen] = useState(false);
+  const [quoteRulesOpen, setQuoteRulesOpen] = useState(false);
+  const [quoteRules, setQuoteRules] = useState(INITIAL_QUOTE_RULES);
   const [rateSeed, setRateSeed] = useState(null);
   const [toasts, setToasts] = useState([]);
   const [notifications, setNotifications] = useState(INITIAL_NOTIFICATIONS);
@@ -121,6 +125,7 @@ export function StoreProvider({ children }) {
         form: { ...quote.form, ...form },
         bidCreated: true,
         offerCreated: true,
+        irrelevantReason: quote.irrelevantReason || irrelevantReasonFor(quote, form),
         isNew: false,
         offerTimer: 5 * 60,
         driversAvailable: true,
@@ -392,6 +397,7 @@ export function StoreProvider({ children }) {
           ...quote,
           bidCreated: true,
           offerCreated: true,
+          irrelevantReason: quote.irrelevantReason || irrelevantReasonFor(quote),
           archived: false,
           isNew: false,
           drivers,
@@ -413,6 +419,7 @@ export function StoreProvider({ children }) {
         ...quote,
         bidCreated: true,
         offerCreated: true,
+        irrelevantReason: quote.irrelevantReason || irrelevantReasonFor(quote),
         archived: false,
         drivers: booked,
         selectedDriverId: booked[0].id,
@@ -429,11 +436,20 @@ export function StoreProvider({ children }) {
     pushToast(`Moved to ${stage === "new" ? "New" : stage === "bid" ? "BID created" : stage === "offer" ? "Offer created" : "Booked"}`);
   };
 
+  const saveQuoteRules = (next) => {
+    setQuoteRules({
+      include: next.include.map((row) => ({ ...row })),
+      exclude: next.exclude.map((row) => ({ ...row })),
+    });
+    setQuoteRulesOpen(false);
+    pushToast("Quote rules saved");
+  };
+
   const applyRate = (value) => {
     setRateSeed({ value, at: Date.now() });
     if (!modalQuoteId && workspaceId) setModalQuoteId(workspaceId);
     setPricingOpen(false);
-    pushToast(`Recommended rate ${value} ready to apply`);
+    pushToast(`Drivers rate ${value} ready to apply`);
   };
 
   const markNotificationsRead = () => {
@@ -483,6 +499,10 @@ export function StoreProvider({ children }) {
       setNewBidOpen,
       pricingOpen,
       setPricingOpen,
+      quoteRulesOpen,
+      setQuoteRulesOpen,
+      quoteRules,
+      saveQuoteRules,
       rateSeed,
       toasts,
       dismissToast,
@@ -534,6 +554,8 @@ export function StoreProvider({ children }) {
       modalQuoteId,
       newBidOpen,
       pricingOpen,
+      quoteRulesOpen,
+      quoteRules,
       rateSeed,
       toasts,
       notifications,

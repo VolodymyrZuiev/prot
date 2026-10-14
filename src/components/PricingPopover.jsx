@@ -38,7 +38,7 @@ export function PricingPopover() {
           </label>
         </div>
         <div className="mt-3 rounded-xl bg-[#eef4ff] px-3 py-2">
-          <div className="text-[11px] uppercase tracking-wide text-slate-400">Recommended</div>
+          <div className="text-[11px] uppercase tracking-wide text-slate-400">Drivers rate</div>
           <div className="text-xl font-semibold text-[#1d4fd0]">${rate.toLocaleString("en-US")}</div>
         </div>
         <button
