@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Minus, Search, X } from "lucide-react";
+import { uid } from "../data";
 import { useStore } from "../store";
 import { btnPrimary } from "./ui";
 
@@ -29,11 +30,23 @@ export function QuoteRulesModal() {
   }, [store]);
 
   const rows = draft[tab] || [];
+  const needle = query.trim().toLowerCase();
   const visible = useMemo(() => {
-    const needle = query.trim().toLowerCase();
     if (!needle) return rows;
     return rows.filter((row) => `${row.company} ${row.email}`.toLowerCase().includes(needle));
-  }, [rows, query]);
+  }, [rows, needle]);
+
+  const knownBrokers = useMemo(() => {
+    const byEmail = new Map();
+    for (const quote of store.quotes) {
+      const email = quote.email?.trim();
+      if (!email || byEmail.has(email.toLowerCase())) continue;
+      byEmail.set(email.toLowerCase(), { company: quote.company, email });
+    }
+    return [...byEmail.values()];
+  }, [store.quotes]);
+
+  const pending = useMemo(() => draftFromQuery(query, rows, knownBrokers), [query, rows, knownBrokers]);
 
   if (!store.quoteRulesOpen) return null;
 
@@ -42,6 +55,15 @@ export function QuoteRulesModal() {
       ...current,
       [tab]: current[tab].filter((row) => row.id !== id),
     }));
+  };
+
+  const addNew = () => {
+    if (!pending) return;
+    setDraft((current) => ({
+      ...current,
+      [tab]: [{ id: uid("rule"), company: pending.company, email: pending.email }, ...current[tab]],
+    }));
+    setQuery("");
   };
 
   return (
@@ -70,13 +92,24 @@ export function QuoteRulesModal() {
           <div className="flex h-full min-h-[360px] flex-col overflow-hidden rounded-2xl border border-slate-200">
             <div className="px-4 pt-4">
               <label className="flex h-10 items-center gap-2 rounded-lg border border-slate-200 px-3">
-                <Search className="h-4 w-4 text-slate-400" />
+                <Search className="h-4 w-4 shrink-0 text-slate-400" />
                 <input
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Search by company / email"
-                  className="h-full w-full bg-transparent text-[13px] outline-none placeholder:text-slate-400"
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      event.preventDefault();
+                      addNew();
+                    }
+                  }}
+                  placeholder="Company or email"
+                  className="h-full min-w-0 flex-1 bg-transparent text-[13px] outline-none placeholder:text-slate-400"
                 />
+                {pending && (
+                  <button type="button" onClick={addNew} className="shrink-0 text-[13px] font-semibold text-[#2f6cf6]">
+                    Add
+                  </button>
+                )}
               </label>
               <div className="mt-3 flex gap-5 border-b border-transparent text-[14px]">
                 <TabButton active={tab === "include"} onClick={() => setTab("include")}>
@@ -102,7 +135,14 @@ export function QuoteRulesModal() {
                   {visible.length === 0 ? (
                     <tr>
                       <td colSpan={4} className="px-4 py-8 text-center text-[13px] text-slate-400">
-                        No companies match this search.
+                        {pending ? (
+                          <button type="button" onClick={addNew} className="font-semibold text-[#2f6cf6]">
+                            Add {pending.company}
+                            {pending.email ? ` · ${pending.email}` : ""}
+                          </button>
+                        ) : (
+                          "No companies match this search."
+                        )}
                       </td>
                     </tr>
                   ) : (
@@ -110,7 +150,7 @@ export function QuoteRulesModal() {
                       <tr key={row.id} className="border-t border-slate-100">
                         <td className="px-4 py-2.5 text-slate-400">{index + 1}</td>
                         <td className="px-2 py-2.5">{row.company}</td>
-                        <td className="px-2 py-2.5 text-slate-600">{row.email}</td>
+                        <td className="px-2 py-2.5 text-slate-600">{row.email || "—"}</td>
                         <td className="px-4 py-2.5 text-right">
                           <button
                             type="button"
@@ -141,6 +181,25 @@ export function QuoteRulesModal() {
       </div>
     </div>
   );
+}
+
+function draftFromQuery(query, rows, knownBrokers) {
+  const value = query.trim();
+  if (!value) return null;
+  const lower = value.toLowerCase();
+  const taken = rows.some((row) => row.company.toLowerCase() === lower || row.email.toLowerCase() === lower);
+  if (taken) return null;
+
+  const known = knownBrokers.find((broker) => broker.company.toLowerCase() === lower || broker.email.toLowerCase() === lower);
+  if (known && !rows.some((row) => row.email.toLowerCase() === known.email.toLowerCase())) return known;
+
+  if (value.includes("@")) {
+    const local = value.split("@")[0].replace(/[._-]+/g, " ").trim();
+    const company = local.replace(/\b\w/g, (char) => char.toUpperCase()) || value;
+    return { company, email: value };
+  }
+
+  return { company: value, email: "" };
 }
 
 function TabButton({ active, onClick, children }) {
